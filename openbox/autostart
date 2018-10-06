@@ -1,0 +1,14 @@
+# Programs that will run after Openbox has started
+
+# Set the wallpaper
+nitrogen --restore &
+
+# Run tint2
+tint2 &
+
+# NM applet for tint2
+(sleep 1 && nm-applet) &
+
+# Run Conky
+([ -n `pgrep conky` ] && killall conky) &
+(sleep 1 && conky) &

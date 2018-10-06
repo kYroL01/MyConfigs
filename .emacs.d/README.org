@@ -1,0 +1,1072 @@
+| ~M-g M-n~      | ~next-error~                                            |
+| ~M-g M-p~      | ~previous-error~                                        |
+| ~M-h~          | ~mark-paragraph~                                        |
+| ~M-s h .~      | ~highlight-symbol-at-point~                             |
+| ~M-s h r~      | ~highlight-regexp~                                      |
+| ~M-s o~        | ~occur~ (specify the context with ~C-u~; edit with ~e~) |
+| ~M-x ffap RET~ | ~find-file-at-point~                                    |
+| ~M-z~          | ~zap-to-char~                                           |
+| ~M-¦~          | ~shell-command-on-region~ (replace with ~C-u~)          |
+
+Custom key bindings can be listed with ~C-c ?~.
+
+* Packages
+
+Initialize the package system:
+
+#+BEGIN_SRC emacs-lisp
+(package-initialize)
+#+END_SRC
+
+Add additional repositories:
+
+#+BEGIN_SRC emacs-lisp
+(add-to-list 'package-archives
+             '("melpa" . "https://melpa.org/packages/"))
+#+END_SRC
+
+Install packages:
+
+#+BEGIN_SRC emacs-lisp
+(let ((packages
+       '(auctex
+         avy
+         cmake-ide
+         cmake-mode
+         dockerfile-mode
+         edit-indirect
+         exec-path-from-shell
+         go-mode
+         htmlize
+         js2-mode
+         json-mode
+         lua-mode
+         magit
+         markdown-mode
+         neotree
+         password-store
+         php-mode
+         rainbow-mode
+         rtags
+         rust-mode
+         web-mode
+         window-numbering
+         yaml-mode)))
+  (when (member nil (mapcar 'package-installed-p packages))
+    (package-refresh-contents)
+    (mapc 'package-install packages)))
+#+END_SRC
+
+Add convenience shortcut:
+
+#+BEGIN_SRC emacs-lisp
+(global-set-key (kbd "C-c p") 'package-list-packages)
+#+END_SRC
+
+* Theme
+
+Load the below theme file:
+
+#+BEGIN_SRC emacs-lisp
+(load-theme 'my t)
+#+END_SRC
+
+Introduce a personal custom theme:
+
+#+BEGIN_SRC emacs-lisp :tangle ~/.emacs.d/my-theme.el
+(deftheme my "Simple flat dark theme.")
+(provide-theme 'my)
+#+END_SRC
+
+The following palette is adapted from [[https://terminal.sexy][terminal.sexy]]:
+
+#+BEGIN_SRC emacs-lisp :tangle ~/.emacs.d/my-theme.el
+(require 'cus-edit) ; for buttons
+
+(let (;; theme base colors
+      (theme-background "#000000")
+      (theme-foreground "#c5c8c6")
+      (theme-accent     "#ff6000")
+      (theme-bright     "#ffffff")
+      (theme-faint      "#373b41")
+      (theme-dark       "#111213")
+      (theme-very-dark  "#090909")
+
+      ;; emacs common colors
+      (theme-red        "#cc6666")
+      (theme-green      "#b5bd68")
+      (theme-yellow     "#f0c674")
+      (theme-blue       "#81a2be")
+      (theme-pink       "#b294bb")
+
+      ;; font lock palette
+      (theme-palette-1  "#5f819d")
+      (theme-palette-2  "#f0c674")
+      (theme-palette-3  "#a54242")
+      (theme-palette-4  "#666d65")
+      (theme-palette-5  "#de935f")
+      (theme-palette-6  "#85678f")
+      (theme-palette-7  "#81a2be")
+      (theme-palette-8  "#b5bd68"))
+
+  (custom-theme-set-faces
+   'my
+
+   ;; basic faces
+   `(default        ((t (:foreground ,theme-foreground :background ,theme-background))))
+   `(shadow         ((t (:foreground ,theme-faint))))
+   `(link           ((t (:foreground ,theme-accent :underline (:color foreground-color :style line)))))
+   `(link-visited   ((t (:inherit (link) :weight normal))))
+   `(highlight      ((t (:background ,theme-dark))))
+   `(match          ((t (:foreground ,theme-accent :weight bold))))
+   `(isearch        ((t (:foreground ,theme-background :background ,theme-accent))))
+   `(lazy-highlight ((t (:foreground ,theme-background :background ,theme-bright))))
+   `(error          ((t (:foreground ,theme-red))))
+   `(warning        ((t (:foreground ,theme-yellow))))
+   `(success        ((t (:foreground ,theme-green))))
+
+   ;; header/mode line
+   `(mode-line           ((t (:foreground ,theme-accent :background ,theme-dark :box (:line-width 5 :color ,theme-dark :style nil)))))
+   `(mode-line-inactive  ((t (:inherit (mode-line) :foreground ,theme-bright))))
+   `(mode-line-highlight ((t (:inverse-video t :box nil))))
+   `(header-line         ((t (:inherit (mode-line) :foreground ,theme-foreground))))
+
+   ;; font lock
+   `(font-lock-function-name-face ((t (:foreground ,theme-palette-1))))
+   `(font-lock-variable-name-face ((t (:foreground ,theme-palette-2))))
+   `(font-lock-keyword-face       ((t (:foreground ,theme-palette-3))))
+   `(font-lock-comment-face       ((t (:foreground ,theme-palette-4))))
+   `(font-lock-type-face          ((t (:foreground ,theme-palette-5))))
+   `(font-lock-constant-face      ((t (:foreground ,theme-palette-6))))
+   `(font-lock-builtin-face       ((t (:foreground ,theme-palette-7))))
+   `(font-lock-string-face        ((t (:foreground ,theme-palette-8))))
+   `(font-lock-negation-char-face ((t (:inherit (default)))))
+
+   ;; highlightings
+   `(hi-black-b  ((t (:inherit (bold)))))
+   `(hi-black-hb ((t (:inherit (bold)))))
+   `(hi-blue     ((t (:foreground ,theme-background :background ,theme-blue))))
+   `(hi-blue-b   ((t (:inherit (hi-blue bold) :inverse-video t))))
+   `(hi-green    ((t (:foreground ,theme-background :background ,theme-green))))
+   `(hi-green-b  ((t (:inherit (hi-green bold) :inverse-video t))))
+   `(hi-pink     ((t (:foreground ,theme-background :background ,theme-pink))))
+   `(hi-red-b    ((t (:inherit (bold) :foreground ,theme-red))))
+   `(hi-yellow   ((t (:foreground ,theme-background :background ,theme-yellow))))
+
+   ;; widgets
+   `(custom-button         ((t (:box (:line-width 2 :color nil :style released-button) :foreground ,theme-foreground :background ,theme-faint))))
+   `(custom-button-pressed ((t (:inherit (custom-button-mouse) :box (:line-width 2 :color nil :style released-button) :foreground ,theme-accent))))
+   `(custom-button-mouse   ((t (:inherit (highlight))))) ; for coherence with widget-button
+   `(widget-field          ((t (:foreground ,theme-foreground :background ,theme-faint))))
+   `(widget-button         ((t (:inherit (custom-button)))))
+   `(widget-button-pressed ((t (:inherit (custom-button-pressed)))))
+
+   ;; others
+   `(vertical-border              ((t (:foreground ,theme-dark))))
+   `(cursor                       ((t (:background ,theme-bright))))
+   `(fringe                       ((t (:foreground ,theme-dark))))
+   `(minibuffer-prompt            ((t (:foreground ,theme-accent :weight bold))))
+   `(region                       ((t (:foreground ,theme-accent :background ,theme-faint))))
+   `(secondary-selection          ((t (:foreground ,theme-accent :background ,theme-dark))))
+   `(isearch-fail                 ((t (:inherit (error)))))
+   `(completions-common-part      ((t (:inherit (shadow)))))
+   `(completions-first-difference ((t (:foreground ,theme-accent))))
+   `(pulse-highlight-start-face   ((t (:background ,theme-accent))))
+
+   ;; fix: compilation
+   `(compilation-mode-line-exit ((t (:inherit (success)))))
+   `(compilation-mode-line-run  ((t (:inherit (warning)))))
+   `(compilation-mode-line-fail ((t (:inherit (error)))))
+
+   ;; fix: show-paren
+   `(show-paren-match    ((t (:inherit (bold) :foreground ,theme-accent))))
+   `(show-paren-mismatch ((t (:inherit (error) :inverse-video t))))
+
+   ;; fix: eshell
+   `(eshell-prompt ((t (:inherit (minibuffer-prompt)))))
+
+   ;; fix: term
+   `(term-color-black ((t (:foreground ,theme-faint :background ,theme-faint))))
+
+   ;; fix: woman
+   `(woman-bold   ((t (:inherit (bold) :foreground ,theme-bright))))
+   `(woman-italic ((t (:inherit (italic) :foreground ,theme-green))))
+
+   ;; fix: js2-mode
+   `(js2-object-property ((t (:inherit (font-lock-builtin-face)))))
+
+   ;; fix: erc
+   `(erc-prompt-face    ((t (:inherit (minibuffer-prompt)))))
+   `(erc-timestamp-face ((t (:inherit (shadow)))))
+   `(erc-notice-face    ((t (:inherit (shadow bold)))))
+
+   ;; fix: markdown-mode
+   `(markdown-code-face ((t (:background ,theme-very-dark))))
+
+   ;; fix: org-mode
+   `(org-block                 ((t (:background ,theme-very-dark))))
+   `(org-code                  ((t (:inherit (font-lock-string-face) :background ,theme-very-dark))))
+   `(org-verbatim              ((t (:inherit (font-lock-string-face) :background ,theme-very-dark))))
+   `(org-document-info-keyword ((t (:inherit (org-meta-line)))))
+   `(org-block-begin-line      ((t (:inherit (org-meta-line) :height 0.7))))
+   `(org-block-end-line        ((t (:inherit (org-meta-line) :height 0.7))))
+   `(org-ellipsis              ((t (:inherit (link)))))
+   `(org-level-1               ((t (:inherit (outline-1 bold) :height 1.4 :background ,theme-very-dark))))
+   `(org-level-2               ((t (:inherit (outline-2 bold) :height 1.4 :background ,theme-very-dark))))
+   `(org-level-3               ((t (:inherit (outline-3 bold) :height 1.4 :background ,theme-very-dark))))
+   `(org-level-4               ((t (:inherit (outline-4 bold) :height 1.4 :background ,theme-very-dark))))
+   `(org-level-5               ((t (:inherit (outline-5 bold) :height 1.4 :background ,theme-very-dark))))
+   `(org-level-6               ((t (:inherit (outline-6 bold) :height 1.4 :background ,theme-very-dark))))
+   `(org-level-7               ((t (:inherit (outline-7 bold) :height 1.4 :background ,theme-very-dark))))
+   `(org-level-8               ((t (:inherit (outline-8 bold) :height 1.4 :background ,theme-very-dark))))))
+#+END_SRC
+
+Theme-related configuration:
+
+#+BEGIN_SRC emacs-lisp
+(custom-set-variables
+ '(custom-raised-buttons t)
+ '(widget-push-button-prefix " ")
+ '(widget-push-button-suffix " ")
+ '(widget-link-prefix " ")
+ '(widget-link-suffix " "))
+#+END_SRC
+
+* Configuration
+
+** Automatic whitespace management
+
+Define a local minor mode that deletes trailing whitespaces on save if enabled:
+
+#+BEGIN_SRC emacs-lisp
+(defun my/trim-whitespace--handler ()
+  "Delete trailing whitespaces if `my/trim-whitespace-mode' is enabled."
+  (when my/trim-whitespace-mode
+    (delete-trailing-whitespace)))
+
+(define-minor-mode my/trim-whitespace-mode
+  "Delete trailing whitespaces on save."
+  :init-value t
+  :lighter " W"
+  (my/trim-whitespace--handler))
+
+(add-hook 'before-save-hook 'my/trim-whitespace--handler)
+#+END_SRC
+
+Add convenience shortcut:
+
+#+BEGIN_SRC emacs-lisp
+(global-set-key (kbd "C-c d") 'my/trim-whitespace-mode)
+#+END_SRC
+
+** Avy
+
+Override ~goto-line~:
+
+#+BEGIN_SRC emacs-lisp
+(defalias 'goto-line 'avy-goto-line)
+#+END_SRC
+
+Main goto-char shortcut:
+
+#+BEGIN_SRC emacs-lisp
+(global-set-key (kbd "C-c l") 'avy-goto-char-timer)
+#+END_SRC
+
+** Backups
+
+Put all the backups in a single place without touching the original file:
+
+#+BEGIN_SRC emacs-lisp
+(custom-set-variables
+ '(backup-by-copying t)
+ '(backup-directory-alist '(("." . "~/.emacs.d/backups"))))
+#+END_SRC
+
+** Calculator
+
+Run the calculator in the echo area:
+
+#+BEGIN_SRC emacs-lisp
+(custom-set-variables
+ '(calculator-electric-mode t))
+#+END_SRC
+
+Add convenience shortcut:
+
+#+BEGIN_SRC emacs-lisp
+(global-set-key (kbd "C-c m") 'calculator)
+#+END_SRC
+
+** Code indenting and formatting
+
+Never use tabs and fix the default C indentation:
+
+#+BEGIN_SRC emacs-lisp
+(custom-set-variables
+ '(require-final-newline 'ask)
+ '(fill-column 80)
+ '(c-backslash-column 79)
+ '(c-backslash-max-column 79)
+ '(indent-tabs-mode nil)
+ '(c-basic-offset 4)
+ '(c-offsets-alist
+   '((substatement-open . 0)
+     (brace-list-intro . +)
+     (arglist-intro . +)
+     (arglist-close . 0)
+     (cpp-macro . 0)
+     (innamespace . 0))))
+#+END_SRC
+
+Always wrap long lines:
+
+#+BEGIN_SRC emacs-lisp
+(add-hook 'comb-buffer-setup-hook
+          (lambda ()
+            (toggle-truncate-lines nil)))
+#+END_SRC
+
+Add convenience shortcut:
+
+#+BEGIN_SRC emacs-lisp
+(global-set-key (kbd "C-c b") 'comb)
+#+END_SRC
+
+** Compilation
+
+Make the compiling interaction less painful:
+
+#+BEGIN_SRC emacs-lisp
+(custom-set-variables
+ '(compile-command "make")
+ '(compilation-scroll-output 'first-error)
+ '(compilation-always-kill t)
+ '(compilation-disable-input t))
+#+END_SRC
+
+Ensure that the compilation messages are nicely readable:
+
+#+BEGIN_SRC emacs-lisp
+(add-hook 'compilation-mode-hook 'visual-line-mode)
+#+END_SRC
+
+Automatically kill the compilation window on success after a short delay, but only if successful:
+
+#+BEGIN_SRC emacs-lisp
+(defun my/compile-auto-quit (buffer status)
+  (let ((window (get-buffer-window buffer)))
+    (when (and (equal (buffer-name buffer) "*compilation*") ; do not kill grep and similar
+               my/compile-should-auto-quit
+               window
+               (equal status "finished\n"))
+      (run-at-time 1 nil 'quit-window nil window))))
+
+(add-to-list 'compilation-finish-functions 'my/compile-auto-quit)
+#+END_SRC
+
+Inhibit the behavior if the compilation window is already present when the re/compilation is started:
+
+#+BEGIN_SRC emacs-lisp
+(defun my/compile-before (&rest ignore)
+  (let* ((buffer (get-buffer "*compilation*"))
+         (window (get-buffer-window buffer)))
+    (setq my/compile-should-auto-quit (not (and buffer window)))))
+
+(advice-add 'compile :before 'my/compile-before)
+(advice-add 'recompile :before 'my/compile-before)
+#+END_SRC
+
+Add a recompilation helper:
+
+#+BEGIN_SRC emacs-lisp
+(defun my/smart-compile ()
+  "Recompile or prompt a new compilation."
+  (interactive)
+  ;; reload safe variables silently
+  (let ((enable-local-variables :safe))
+    (hack-local-variables))
+  ;; smart compile
+  (if (local-variable-p 'compile-command)
+      (compile compile-command)
+    (let ((buffer (get-buffer "*compilation*")))
+      (if buffer
+          (with-current-buffer buffer
+            (recompile))
+        (call-interactively 'compile)))))
+#+END_SRC
+
+*Note:* a mere ~recompile~ will not work because it would use the ~compilation-command~ of the current buffer.
+
+Add convenience shortcuts:
+
+#+BEGIN_SRC emacs-lisp
+(global-set-key (kbd "C-c c") 'my/smart-compile)
+(global-set-key (kbd "C-c C") 'compile)
+#+END_SRC
+
+** Custom paragraph motions
+
+The default key bindings with an Italian keyboard are crazy, plus due to ghosting not every keyboard is able to process such sequences:
+
+#+BEGIN_SRC emacs-lisp
+(global-set-key (kbd "M-p") 'backward-paragraph)
+(global-set-key (kbd "M-n") 'forward-paragraph)
+#+END_SRC
+
+*Note:* ~<C-up>~ and ~<C-down>~ can be used instead.
+
+** Dired
+
+Use the native Emacs Lisp ~ls~ program emulation:
+
+#+BEGIN_SRC emacs-lisp
+(require 'ls-lisp)
+
+(custom-set-variables
+ '(ls-lisp-use-insert-directory-program nil))
+#+END_SRC
+
+Group directories first and tune the displayed information:
+
+#+BEGIN_SRC emacs-lisp
+(custom-set-variables
+ '(ls-lisp-dirs-first t)
+ '(ls-lisp-use-localized-time-format t)
+ '(ls-lisp-verbosity '(uid gid)))
+#+END_SRC
+
+** Easy customization interface
+
+Avoid that Emacs messes up the configuration files:
+
+#+BEGIN_SRC emacs-lisp
+(custom-set-variables
+ '(custom-file "/dev/null"))
+#+END_SRC
+
+This basically inhibit the "Save for Future Sessions" feature; saving the above file and manually loading it will not work either.
+
+** Easy ~revert-buffer~
+
+Revert the current buffer without confirmation:
+
+#+BEGIN_SRC emacs-lisp
+(defun my/force-revert-buffer ()
+  "Revert buffer without confirmation."
+  (interactive)
+  (revert-buffer t t))
+#+END_SRC
+
+Add convenience shortcut:
+
+#+BEGIN_SRC emacs-lisp
+(global-set-key (kbd "C-c R") 'my/force-revert-buffer)
+#+END_SRC
+
+** elisp evaluation helper
+
+Add convenience shortcut for buffer evaluation:
+
+#+BEGIN_SRC emacs-lisp
+(global-set-key (kbd "C-c v") 'eval-buffer)
+#+END_SRC
+
+** ERC
+
+Disable hard fill:
+
+#+BEGIN_SRC emacs-lisp
+(custom-set-variables
+ '(erc-modules '(completion
+                 autojoin
+                 button
+                 irccontrols
+                 list
+                 match
+                 menu
+                 move-to-prompt
+                 netsplit
+                 networks
+                 noncommands
+                 readonly
+                 ring
+                 stamp
+                 track)))
+#+END_SRC
+
+Enable visual indentation instead:
+
+#+BEGIN_SRC emacs-lisp
+(add-hook 'erc-mode-hook 'visual-line-mode)
+#+END_SRC
+
+Make track mode less noisy:
+
+#+BEGIN_SRC emacs-lisp
+(custom-set-variables
+ '(erc-track-exclude-types '("JOIN" "KICK" "NICK" "PART" "QUIT" "MODE")))
+#+END_SRC
+
+Set the timestamp on the left and always visible:
+
+#+BEGIN_SRC emacs-lisp
+(custom-set-variables
+ '(erc-insert-timestamp-function 'erc-insert-timestamp-left)
+ '(erc-timestamp-format "[%H:%M] ")
+ '(erc-timestamp-only-if-changed-flag nil))
+#+END_SRC
+
+Disable automatic point recentering so that the prompt stays still (see ~C-h v scroll-conservatively~ for the magic number):
+
+#+BEGIN_SRC emacs-lisp
+(add-hook 'erc-mode-hook
+          (lambda ()
+            (set (make-local-variable 'scroll-conservatively) 101)))
+#+END_SRC
+
+Automatic [[https://freenode.net/][Freenode]] connection:
+
+#+BEGIN_SRC emacs-lisp
+(defun my/irc ()
+  (interactive)
+  (let* ((credentials (split-string (password-store-get "Freenode")))
+         (nick (nth 0 credentials))
+         (password (nth 1 credentials)))
+    (erc
+     :server "irc.freenode.net"
+     :port 6667
+     :nick nick
+     :password password)))
+#+END_SRC
+
+Credentials are fetched from [[https://www.passwordstore.org/][pass]] (a graphical pinentry for GPG must be available, e.g., ~pinentry-qt~ and ~pinentry-mac~).
+
+Setup the autojoin list:
+
+#+BEGIN_SRC emacs-lisp
+(custom-set-variables
+ '(erc-autojoin-channels-alist '(("freenode.net$" . ("#emacs")))))
+#+END_SRC
+
+Add convenience shortcut:
+
+#+BEGIN_SRC emacs-lisp
+(global-set-key (kbd "C-c i") 'my/irc)
+#+END_SRC
+
+** Error navigation
+
+Break the convention and use a single key shortcut for navigating errors:
+
+#+BEGIN_SRC emacs-lisp
+(global-set-key (kbd "<f5>") 'previous-error)
+(global-set-key (kbd "<f8>") 'next-error)
+#+END_SRC
+
+** Eshell
+
+Nicer prompt for Eshell:
+
+#+BEGIN_SRC emacs-lisp
+(defun my/eshell-prompt-function ()
+  (format "%s\n%s "
+          (abbreviate-file-name (eshell/pwd))
+          (if (= (user-uid) 0) "#" "$")))
+
+(custom-set-variables
+ '(eshell-banner-message "")
+ '(eshell-prompt-regexp "^[$#] ")
+ '(eshell-prompt-function 'my/eshell-prompt-function))
+#+END_SRC
+
+Add convenience shortcut:
+
+#+BEGIN_SRC emacs-lisp
+(global-set-key (kbd "C-c e") 'eshell)
+#+END_SRC
+
+** Grep
+
+Ignore Node.js folder in searches:
+
+#+BEGIN_SRC emacs-lisp
+(eval-after-load "grep"
+  '(add-to-list 'grep-find-ignored-directories "node_modules"))
+#+END_SRC
+
+Use a cleaner ~rgrep~ output by hiding the command:
+
+#+BEGIN_SRC emacs-lisp
+(defun my/rgrep-fix (&rest ignore)
+  (save-excursion
+    (with-current-buffer grep-last-buffer
+      (goto-line 5) ; manually checked
+      (narrow-to-region (point) (point-max)))))
+
+(advice-add 'rgrep :after 'my/rgrep-fix)
+#+END_SRC
+
+Allow to repeat ~rgrep~ in for the same files unsing the symbol at point without asking:
+
+#+BEGIN_SRC emacs-lisp
+(defun my/rgrep-again ()
+  (interactive)
+  (let* ((buffer (if (buffer-live-p grep-last-buffer)
+                     grep-last-buffer (current-buffer)))
+         (default-directory (buffer-local-value 'default-directory buffer)))
+    (rgrep (thing-at-point 'symbol t)
+           (car grep-files-history)
+           default-directory)))
+#+END_SRC
+
+Add convenience shortcuts:
+
+#+BEGIN_SRC emacs-lisp
+(global-set-key (kbd "C-c g") 'rgrep)
+(global-set-key (kbd "C-c G") 'my/rgrep-again)
+#+END_SRC
+
+** HTML
+
+Associate ~web-mode~:
+
+#+BEGIN_SRC emacs-lisp
+(add-to-list 'auto-mode-alist '("\\.html?\\'" . web-mode))
+#+END_SRC
+
+** IBuffer
+
+Do not annoy with trivial confirmations:
+
+#+BEGIN_SRC emacs-lisp
+(custom-set-variables
+ '(ibuffer-expert t))
+#+END_SRC
+
+Use ~ibuffer~ instead of ~list-buffer~:
+
+#+BEGIN_SRC emacs-lisp
+(defalias 'list-buffers 'ibuffer)
+#+END_SRC
+
+** Initialization
+
+#+BEGIN_SRC emacs-lisp
+(custom-set-variables
+ '(initial-scratch-message "")
+ '(initial-buffer-choice t))
+#+END_SRC
+
+** Ispell
+
+#+BEGIN_SRC emacs-lisp
+(custom-set-variables
+ '(ispell-silently-savep t))
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+(add-to-list 'safe-local-eval-forms
+             '(setq ispell-personal-dictionary
+                    (concat (locate-dominating-file default-directory ".dir-locals.el")
+                            ".dictionary")))
+#+END_SRC
+
+The above allows to safely set a per-directory personal dictionary (~.dir-locals.el~), for example:
+
+#+BEGIN_SRC emacs-lisp :tangle no
+((nil . ((ispell-local-dictionary . "english")
+         (eval . (setq ispell-personal-dictionary
+                       (concat (locate-dominating-file default-directory ".dir-locals.el")
+                               ".dictionary"))))))
+#+END_SRC
+
+** JavaScript
+
+Associate ~js2-mode~:
+
+#+BEGIN_SRC emacs-lisp
+(add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
+(add-to-list 'interpreter-mode-alist '("node" . js2-mode))
+#+END_SRC
+
+** Keywords highlighting
+
+Useful keyword highlighting:
+
+#+BEGIN_SRC emacs-lisp
+(defun my/keywords-highlighting ()
+  (let* ((regexp "\\<TODO\\>\\|\\<XXX\\>")
+         (match `((,regexp 0 font-lock-warning-face t))))
+    (font-lock-add-keywords nil match t)))
+
+(add-hook 'text-mode-hook 'my/keywords-highlighting)
+(add-hook 'prog-mode-hook 'my/keywords-highlighting)
+#+END_SRC
+
+** Magit
+
+Use Magit for external ~git commit~ and enable spell checking:
+
+#+BEGIN_SRC emacs-lisp
+(global-git-commit-mode)
+(add-hook 'git-commit-setup-hook 'git-commit-turn-on-flyspell)
+#+END_SRC
+
+Add convenience shortcut:
+
+#+BEGIN_SRC emacs-lisp
+(global-set-key (kbd "C-c s") 'magit-status)
+#+END_SRC
+
+** Markdown
+
+Visual improvements:
+
+#+BEGIN_SRC emacs-lisp
+(custom-set-variables
+ `(markdown-fontify-code-blocks-natively t))
+#+END_SRC
+
+Use visual indentation by default:
+
+#+BEGIN_SRC emacs-lisp
+(add-hook 'markdown-mode-hook 'visual-line-mode)
+#+END_SRC
+
+** Minibuffer history
+
+Infinite minibuffer history:
+
+#+BEGIN_SRC emacs-lisp
+(custom-set-variables
+ '(savehist-mode t)
+ '(history-length t))
+#+END_SRC
+
+** Mouse behavior
+
+More comfortable mouse scrolling and yanking:
+
+#+BEGIN_SRC emacs-lisp
+(custom-set-variables
+ '(mouse-wheel-scroll-amount '(1 ((shift) . 5)))
+ '(mouse-wheel-progressive-speed nil)
+ '(mouse-yank-at-point t))
+#+END_SRC
+
+Allow to yank the primary selection with the keyboard:
+
+#+BEGIN_SRC emacs-lisp
+(defun my/yank-primary ()
+  "Yank the primary selection (the one selected with the mouse)."
+  (interactive)
+  (insert-for-yank (gui-get-primary-selection)))
+#+END_SRC
+
+Replace the original shortcut:
+
+#+BEGIN_SRC emacs-lisp
+(global-set-key (kbd "S-<insert>") 'my/yank-primary)
+#+END_SRC
+
+** Neotree
+
+Add convenience shortcut:
+
+#+BEGIN_SRC emacs-lisp
+(global-set-key (kbd "C-c n") 'neotree-toggle)
+#+END_SRC
+
+** Org
+
+Ensure spacing coherence and fix indentation:
+
+#+BEGIN_SRC emacs-lisp
+(custom-set-variables
+ '(org-src-preserve-indentation t)
+ '(org-src-tab-acts-natively t)
+ '(org-startup-folded nil)
+ '(org-cycle-separator-lines 1)
+ '(org-blank-before-new-entry '((heading . t) (plain-list-item))))
+#+END_SRC
+
+Visual improvements:
+
+#+BEGIN_SRC emacs-lisp
+(custom-set-variables
+ '(org-highlight-latex-and-related '(latex))
+ '(org-fontify-quote-and-verse-blocks t)
+ '(org-src-fontify-natively t)
+ '(org-fontify-whole-heading-line t)
+ '(org-ellipsis "\u2026"))
+#+END_SRC
+
+Configure the spell checker to ignore some Org regions:
+
+#+BEGIN_SRC emacs-lisp
+(defun my/org-ispell ()
+  "Skip regions from spell checking."
+  (make-local-variable 'ispell-skip-region-alist)
+  (add-to-list 'ispell-skip-region-alist '("~" . "~"))
+  (add-to-list 'ispell-skip-region-alist '("=" . "="))
+  (add-to-list 'ispell-skip-region-alist '("\\[" . "\\]"))
+  (add-to-list 'ispell-skip-region-alist '("^ *#\\+OPTIONS:" . "$"))
+  (add-to-list 'ispell-skip-region-alist '("^ *#\\+ATTR_" . "$"))
+  (add-to-list 'ispell-skip-region-alist '("^ *#\\+BEGIN_SRC" . "^ *#\\+END_SRC"))
+  (add-to-list 'ispell-skip-region-alist '("^ *#\\+BEGIN_EXAMPLE" . "^ *#\\+END_EXAMPLE")))
+
+(add-hook 'org-mode-hook 'my/org-ispell)
+#+END_SRC
+
+Use visual indentation by default:
+
+#+BEGIN_SRC emacs-lisp
+(add-hook 'org-mode-hook 'visual-line-mode)
+(add-hook 'org-mode-hook 'org-indent-mode)
+#+END_SRC
+
+Go to the beginning of the buffer when the global visibility is changed:
+
+#+BEGIN_SRC emacs-lisp
+(advice-add 'org-global-cycle :before 'beginning-of-buffer)
+#+END_SRC
+
+** PHP
+
+#+BEGIN_SRC emacs-lisp
+(add-to-list 'auto-mode-alist '("\\.inc$" . php-mode))
+#+END_SRC
+
+** Platform-specific setup/fixes
+
+*** GUI
+
+Avoid suspend-frame in GUI mode:
+
+#+BEGIN_SRC emacs-lisp
+(advice-add 'iconify-or-deiconify-frame :before-until 'display-graphic-p)
+#+END_SRC
+
+*Note:* the check must be performed /live/ because it should work even if the Emacs server is used.
+
+On Linux set the GTK default background to match the theme background to prevent /white/ flashes:
+
+#+BEGIN_SRC text :tangle ~/.emacs.d/gtkrc
+style "default" {
+    bg[NORMAL] = {0, 0, 0}
+}
+#+END_SRC
+
+*** Terminal
+
+Use custom window separator character in terminal mode:
+
+#+BEGIN_SRC emacs-lisp
+(set-display-table-slot standard-display-table 'vertical-border #x2502)
+#+END_SRC
+
+** Python
+
+Force Python 3 sessions:
+
+#+BEGIN_SRC emacs-lisp
+(custom-set-variables
+ '(python-shell-interpreter "python3"))
+#+END_SRC
+
+** Save place
+
+#+BEGIN_SRC emacs-lisp
+(custom-set-variables
+ '(save-place-mode t))
+#+END_SRC
+
+** Scrolling
+
+Scroll without jumps if the cursor moves out the window boundaries:
+
+#+BEGIN_SRC emacs-lisp
+(custom-set-variables
+ '(scroll-step 1)
+ '(scroll-margin 0)
+ '(hscroll-step 1)
+ '(hscroll-margin 0))
+#+END_SRC
+
+*Note:* setting ~scroll-conservatively~ to a large number yields the same result but it also affects the point position after a /jump/, e.g., ~next-error~, ~iserach-forward~, etc.
+
+** Shell
+
+Avoid showing the shell buffer output immediately for async commands and allow more than one of them:
+
+#+BEGIN_SRC emacs-lisp
+(custom-set-variables
+ '(async-shell-command-buffer 'new-buffer)
+ '(async-shell-command-display-buffer nil))
+#+END_SRC
+
+** Skeletons
+
+Silently auto insert skeletons in new files and mark them as modified, but only
+for custom skeletons:
+
+#+BEGIN_SRC emacs-lisp
+(custom-set-variables
+ '(auto-insert t)
+ '(auto-insert-mode t)
+ '(auto-insert-query nil)
+ '(auto-insert-alist nil))
+#+END_SRC
+
+*** C
+
+#+BEGIN_SRC emacs-lisp
+(add-to-list 'auto-insert-alist '("\\.c\\'" . my/c-source-skeleton))
+
+(define-skeleton my/c-source-skeleton
+  "C source skeleton"
+  nil
+  "/* -*- compile-command: \"gcc -Wall -pedantic -g3 "
+  (buffer-name) " -o " (file-name-base) "\" -*- */\n"
+  "#include <stdio.h>\n"
+  "#include <stdlib.h>\n"
+  "\n"
+  "int main(int argc, char *argv[]) {\n"
+  "    " _ "printf(\"Hello, world\\n\");\n"
+  "    return EXIT_SUCCESS;\n"
+  "}\n")
+#+END_SRC
+
+*** C++
+
+#+BEGIN_SRC emacs-lisp
+(add-to-list 'auto-insert-alist '("\\.cpp\\'" . my/c++-source-skeleton))
+
+(define-skeleton my/c++-source-skeleton
+  "C++ source skeleton"
+  nil
+  "// -*- compile-command: \"g++ -std=c++14 -Wall -pedantic -g3 "
+  (buffer-name) " -o " (file-name-base) "\" -*-\n"
+  "#include <iostream>\n"
+  "\n"
+  "int main(int argc, char *argv[]) {\n"
+  "    " _ "std::cout << \"Hello, world\" << std::endl;\n"
+  "}\n")
+#+END_SRC
+
+*** HTML
+
+#+BEGIN_SRC emacs-lisp
+(add-to-list 'auto-insert-alist '("\\.html\\'" . my/html-skeleton))
+
+(define-skeleton my/html-skeleton
+  "HTML skeleton"
+  nil
+  "<!DOCTYPE html>\n"
+  "<html lang=\"en\">\n"
+  "    <head>\n"
+  "        <meta charset=\"utf-8\">\n"
+  "        <title></title>\n"
+  "        <style></style>\n"
+  "        <script></script>\n"
+  "    </head>\n"
+  "    <body>\n"
+  "        " _ "Hello, world\n"
+  "    </body>\n"
+  "</html>\n")
+#+END_SRC
+
+** Term and shell
+
+Shell terminal helper:
+
+#+BEGIN_SRC emacs-lisp
+(defun my/shell-terminal ()
+  "Run a shell terminal without prompt."
+  (interactive)
+  (term (getenv "SHELL")))
+#+END_SRC
+
+Add convenience shortcuts:
+
+#+BEGIN_SRC emacs-lisp
+(global-set-key (kbd "C-c t") 'my/shell-terminal)
+(global-set-key (kbd "C-c l") 'shell)
+#+END_SRC
+
+** User interface settings
+
+Use shift and arrows to select windows:
+
+#+BEGIN_SRC emacs-lisp
+(windmove-default-keybindings)
+#+END_SRC
+
+Misc:
+
+#+BEGIN_SRC emacs-lisp
+(custom-set-variables
+ '(blink-cursor-mode nil)
+ '(column-number-mode t)
+ '(disabled-command-function nil)
+ '(echo-keystrokes 0.25)
+ '(font-lock-maximum-decoration 2)
+ '(help-window-select t)
+ '(indicate-buffer-boundaries 'left)
+ '(indicate-empty-lines t)
+ '(isearch-allow-scroll t)
+ '(menu-bar-mode nil)
+ '(ring-bell-function 'ignore)
+ '(scroll-bar-mode nil)
+ '(show-paren-mode t)
+ '(tab-width 4)
+ '(tool-bar-mode nil)
+ '(truncate-lines t)
+ '(use-dialog-box nil))
+#+END_SRC
+
+** Window numbering
+
+#+BEGIN_SRC emacs-lisp
+(custom-set-variables
+ '(window-numbering-mode t))
+#+END_SRC
+
+** Winner
+
+#+BEGIN_SRC emacs-lisp
+(custom-set-variables
+ '(winner-mode t))
+#+END_SRC
+
+** WoMan
+
+Fill the whole frame on creation or refresh with ~R~.
+
+#+BEGIN_SRC emacs-lisp
+(custom-set-variables
+ '(woman-fill-frame t))
+#+END_SRC
+
+** YAML
+
+Use visual line wrapping:
+
+#+BEGIN_SRC emacs-lisp
+(add-hook 'yaml-mode-hook 'visual-line-mode)
+#+END_SRC
+
+Use a bigger target size and resize temp buffers anyway:
+
+#+BEGIN_SRC emacs-lisp
+(custom-set-variables
+ '(zoom-mode t)
+ '(zoom-size '(90 . 30))
+ '(temp-buffer-resize-mode t))
+#+END_SRC
+Add convenience shortcut:
+
+#+BEGIN_SRC emacs-lisp
+(global-set-key (kbd "C-c z") 'zoom)
+#+END_SRC

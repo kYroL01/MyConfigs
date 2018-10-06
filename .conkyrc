@@ -1,0 +1,134 @@
+conky.config = {
+
+-------------------------------------
+--  Generic Settings
+-------------------------------------
+background=true,
+update_interval=1,
+double_buffer=true,
+no_buffers=true,
+imlib_cache_size=10,
+
+draw_shades=false,
+draw_outline=falses,
+draw_borders=fasle,
+
+
+-------------------------------------
+--  Window Specifications
+-------------------------------------
+gap_x=2,
+gap_y=40,
+
+minimum_height=200,
+minimum_width=200,
+
+own_window=true,
+own_window_type="normal",
+own_window_transparent=true,
+own_window_hints="undecorated,below,sticky,skip_taskbar,skip_pager",
+
+own_window_argb_visual=true,
+own_window_argb_value=0,
+
+
+-------------------------------------
+--  Text Settings
+-------------------------------------
+use_xft=true,
+xftalpha=1,
+font="Droid Sans:size=10",
+text_buffer_size=256,
+override_utf8_locale=true,
+
+
+-------------------------------------
+--  Color Scheme
+-------------------------------------
+default_color="FFFFFF",
+
+color0="2572F7",  --  hours
+color1="FFFFFF",  --  clock dots
+color2="2572F7",  --  minutes
+color3="FFFFFF",  --  week day
+color4="FFFFFF",  --  month day
+color5="FFFFFF",  --  month and year
+color6="FAE311",  --  yellow
+
+
+-------------------------------------
+--  Temp Unit (default, metric, imperial)
+-------------------------------------
+template8="metric",
+
+}
+
+
+-------------------------------------
+-------------------------------------
+
+
+conky.text = [[
+\
+\
+\
+\
+${font Roboto :size=43}${color0}\
+${alignc}${time %l}\
+\
+\
+\
+\
+\
+${font Roboto Thin :size=42}${color1}:\
+\
+\
+\
+\
+${font Roboto Thin :size=42}${color2}\
+${time %M}${font}${color}${time %p}${font}${color}
+\
+\
+\
+\
+\
+${font Roboto Light :size=12}${color6}\
+${voffset 12}${alignc}${execi 300 LANG=${template9} LC_TIME=${template9} date +"%A"}${color}, \
+\
+\
+${font Roboto Light :size=12}${color6}\
+${alignc}${execi 300 LANG=${template9} LC_TIME=${template9} date +"%d"}${color} \
+\
+\
+${font Roboto Light :size=12}${color6}\
+${alignc}${execi 300 LANG=${template9} LC_TIME=${template9} date +"%B"}${font}${color} \
+\
+\
+${font Roboto Light :size=12}${color6}\
+${voffset -3}${alignc}${execi 300 LANG=${template9} LC_TIME=${template9} date +"%Y"}${font}${color}
+\
+\
+${hr 1}${goto 80}${voffset 10}
+\
+\
+#${font Roboto Bold :size=10}${color6}\
+#${goto 5}\
+\
+\
+#${hr 1}${goto 80}${voffset 10}
+\
+\
+${font Roboto Thin :size=10}${color6}\
+${goto 5}${voffset -12}\
+CPU: ${cpu}%
+IP: ${addrs wlp16s0}${font}${color}
+MAC: ${wireless_ap wlp16s0}${font}${color}
+Kernel: ${kernel}${font}${color}
+Machine: ${machine}${font}${color}
+RAM: $mem/$memmax ${color}
+RAM %: $memperc% ${membar 6}
+Total Memory: ${memmax}${font}${color}
+Free Space: ${fs_free}${font}${color}
+Top Proc CPU: ${top name 1}
+Top Proc Mem: ${top_mem name 1}
+]]
