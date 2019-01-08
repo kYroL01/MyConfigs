@@ -1,0 +1,14 @@
+prefix = /usr/local
+datarootdir = $(prefix)/share
+datadir = $(datarootdir)
+exec_prefix = $(prefix)
+# Where to put the config system modules
+sysconfdir = /usr/local/etc
+# Where to put the library modules
+libdir = /usr/local/lib
+# Where to put the executable for the command 'gcc'.
+bindir = $(exec_prefix)/bin
+# Where to put the directories used by the compiler.
+libexecdir = $(exec_prefix)/libexec
+# Where to put the Info files.
+infodir = $(datarootdir)/info
