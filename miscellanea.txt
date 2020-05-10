@@ -1,0 +1,2 @@
+If kworker process start to use too much CPU, check and disable the interrupts connected to GPE
+- echo "disable" > /sys/firmware/acpi/interrupts/gpe06
