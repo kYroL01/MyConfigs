@@ -23,6 +23,8 @@ Add additional repositories:
 #+BEGIN_SRC emacs-lisp
 (add-to-list 'package-archives
              '("melpa" . "https://melpa.org/packages/"))
+             '("melpa" . "http://melpa.milkbox.net/packages/"))
+(package-initialize)
 #+END_SRC
 
 Install packages:
@@ -874,6 +876,20 @@ Force Python 3 sessions:
 (custom-set-variables
  '(python-shell-interpreter "python3"))
 #+END_SRC
+
+Autocompletion:
+#+BEGIN_SRC emacs-lisp
+;; Standard Jedi.el setting for python autocompletion
+(add-hook 'python-mode-hook 'jedi:setup)
+(setq jedi:complete-on-dot t)
+
+;; Type:
+;;     M-x package-install RET jedi RET
+;;     M-x jedi:install-server RET
+;; Then open Python file.
+#+END_SRC
+
+if we have an error on `virtualenv`, install it with `pip3 install virtualenv` then run again the above commands
 
 ** Save place
 
